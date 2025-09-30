@@ -1,8 +1,12 @@
 /**
  * @summary
- * Formats successful API responses
+ * Utility functions for formatting API responses
  */
-export function successResponse<T>(data: T, metadata?: any) {
+
+/**
+ * Formats a successful response
+ */
+export function successResponse<T>(data: T, metadata?: Record<string, any>) {
   return {
     success: true,
     data,
@@ -14,8 +18,7 @@ export function successResponse<T>(data: T, metadata?: any) {
 }
 
 /**
- * @summary
- * Formats error API responses
+ * Formats an error response
  */
 export function errorResponse(message: string, details?: any) {
   return {

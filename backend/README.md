@@ -4,11 +4,11 @@ A RESTful API for counting from 1 to 10 with features for controlling the counti
 
 ## Features
 
-- Start, pause, resume, and restart counting
+- Start counting from 1 to 10
+- Pause and resume counting
+- Restart counting from 1
 - Control counting speed (slow, medium, fast)
-- Display numerical sequence from 1 to 10
-- User authentication and authorization
-- Secure API endpoints
+- Display the numerical sequence
 
 ## Getting Started
 
@@ -24,7 +24,7 @@ A RESTful API for counting from 1 to 10 with features for controlling the counti
    ```
    npm install
    ```
-3. Copy `.env.example` to `.env` and configure environment variables
+3. Create a `.env` file based on `.env.example`
 4. Start the development server:
    ```
    npm run dev
@@ -34,38 +34,45 @@ A RESTful API for counting from 1 to 10 with features for controlling the counti
 
 ### Authentication
 
-- `POST /api/external/security/auth/login` - User login
-- `POST /api/external/security/auth/register` - User registration
+- `POST /api/external/security/auth/login` - Authenticate user and get JWT token
 
 ### Counter Operations
 
-- `POST /api/internal/counter/start` - Start counting
-- `POST /api/internal/counter/pause` - Pause counting
-- `POST /api/internal/counter/resume` - Resume counting
-- `POST /api/internal/counter/restart` - Restart counting
-- `POST /api/internal/counter/speed` - Set counting speed
-- `GET /api/internal/counter/status` - Get current counter status
-
-## Project Structure
-
-```
-src/
-├── api/                  # API controllers
-├── config/               # Application configuration
-├── constants/            # Application constants
-├── middleware/           # Express middleware
-├── routes/               # Route definitions
-├── services/             # Business logic
-├── types/                # TypeScript type definitions
-├── utils/                # Utility functions
-└── server.ts            # Application entry point
-```
+- `POST /api/internal/counter/start` - Start counting from 1 to 10
+- `POST /api/internal/counter/pause` - Pause the counting process
+- `POST /api/internal/counter/resume` - Resume the counting process
+- `POST /api/internal/counter/restart` - Restart counting from 1
+- `PUT /api/internal/counter/speed` - Set the counting speed (slow, medium, fast)
+- `GET /api/internal/counter/status` - Get the current counter status
 
 ## Development
 
-- Build the project: `npm run build`
-- Run tests: `npm test`
-- Lint code: `npm run lint`
+### Build
+
+```
+npm run build
+```
+
+### Run Tests
+
+```
+npm test
+```
+
+### Linting
+
+```
+npm run lint
+```
+
+## Project Structure
+
+- `src/api` - API controllers
+- `src/middleware` - Express middleware
+- `src/services` - Business logic
+- `src/utils` - Utility functions
+- `src/config` - Application configuration
+- `src/routes` - API routes
 
 ## License
 

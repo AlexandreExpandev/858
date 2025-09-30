@@ -1,11 +1,4 @@
-import { authMiddleware } from './authMiddleware';
-import { errorMiddleware } from './errorMiddleware';
-import { notFoundMiddleware } from './notFoundMiddleware';
-import { validationMiddleware } from './validationMiddleware';
-
-export {
-  authMiddleware,
-  errorMiddleware,
-  notFoundMiddleware,
-  validationMiddleware
-};
+export { authMiddleware } from './authMiddleware';
+export { errorMiddleware } from './errorMiddleware';
+export { notFoundMiddleware } from './notFoundMiddleware';
+export { validationMiddleware } from './validationMiddleware';
