@@ -1,0 +1,2 @@
+// This file will contain service instances and configurations
+// For the current implementation, we don't have any external services to initialize\n// but this structure allows for future expansion\n\n/**\n * @summary\n * Initialize all service instances\n */\nexport async function initializeInstances(): Promise<void> {\n  // Initialize database connection, external APIs, etc.\n  // For now, this is a placeholder for future implementation\n}\n
