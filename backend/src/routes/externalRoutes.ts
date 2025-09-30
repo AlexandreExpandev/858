@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import * as securityController from '../api/external/security/authentication/controller';
+import * as securityController from '../api/external/security/controller';
 
 const router = Router();
 
-// Authentication routes
+// Security routes (authentication, etc.)
 router.post('/security/login', securityController.loginHandler);
 router.post('/security/register', securityController.registerHandler);
 

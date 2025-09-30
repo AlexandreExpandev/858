@@ -1,6 +1,7 @@
 /**
  * @summary
  * Application configuration settings loaded from environment variables
+ * with sensible defaults for development environments.
  */
 export const config = {
   database: {

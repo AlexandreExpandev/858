@@ -1,30 +1,62 @@
-import jwt from 'jsonwebtoken';
-import { config } from '../../config';
+import bcrypt from 'bcrypt';
+import { User, UserCreateParams } from './securityTypes';
+
+// In-memory user storage (in a real app, this would be in a database)
+const users: User[] = [];
+let nextUserId = 1;
 
 /**
  * @summary
- * User data interface for token payload
+ * Validates user credentials
  */
-export interface UserData {
-  username: string;
-  id?: string;
-  [key: string]: any;
+export async function validateCredentials(email: string, password: string): Promise<User | null> {
+  const user = users.find(u => u.email === email);
+  
+  if (!user) {
+    return null;
+  }
+  
+  const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+  
+  if (!passwordMatch) {
+    return null;
+  }
+  
+  return user;
 }
 
 /**
  * @summary
- * Generates a JWT token for the provided user data
+ * Creates a new user
  */
-export function generateToken(userData: UserData): string {
-  return jwt.sign(userData, config.security.jwtSecret, {
-    expiresIn: config.security.jwtExpiration
-  });
+export async function createUser(params: UserCreateParams): Promise<User> {
+  // Check if user already exists
+  const existingUser = users.find(u => u.email === params.email);
+  if (existingUser) {
+    throw new Error('UserAlreadyExists');
+  }
+  
+  // Hash password
+  const passwordHash = await bcrypt.hash(params.password, 10);
+  
+  // Create new user
+  const newUser: User = {
+    id: nextUserId++,
+    name: params.name,
+    email: params.email,
+    passwordHash,
+    createdAt: new Date()
+  };
+  
+  users.push(newUser);
+  
+  return newUser;
 }
 
 /**
  * @summary
- * Verifies a JWT token and returns the decoded data
+ * Gets a user by ID
  */
-export function verifyToken(token: string): UserData {
-  return jwt.verify(token, config.security.jwtSecret) as UserData;
+export async function getUserById(id: number): Promise<User | null> {
+  return users.find(u => u.id === id) || null;
 }

@@ -1,14 +1,14 @@
 # Counter API
 
-A RESTful API for counting from 1 to 10 with features for controlling the counting process.
+A RESTful API for a counting system that counts from 1 to 10 with features for controlling the counting process.
 
 ## Features
 
-- Start counting from 1 to 10
-- Pause and resume counting
-- Restart counting from 1
+- Start, pause, resume, and restart counting
 - Control counting speed (slow, medium, fast)
-- Display the numerical sequence
+- Display numerical sequence from 1 to 10
+- User authentication and authorization
+- Secure API endpoints
 
 ## Getting Started
 
@@ -46,7 +46,7 @@ A RESTful API for counting from 1 to 10 with features for controlling the counti
 - `POST /api/internal/counter/pause` - Pause counting
 - `POST /api/internal/counter/resume` - Resume counting
 - `POST /api/internal/counter/restart` - Restart counting
-- `POST /api/internal/counter/speed` - Set counting speed
+- `PUT /api/internal/counter/speed` - Set counting speed
 - `GET /api/internal/counter/status` - Get counter status
 
 ## Development
@@ -67,6 +67,24 @@ npm test
 
 ```
 npm run lint
+```
+
+## Project Structure
+
+```
+src/
+├── api/                  # API controllers
+│   ├── external/         # Public endpoints
+│   └── internal/         # Authenticated endpoints
+├── config/               # Application configuration
+├── middleware/           # Express middleware
+├── routes/               # Route definitions
+├── services/             # Business logic
+│   ├── counter/          # Counter service
+│   └── security/         # Authentication service
+├── types/                # TypeScript type definitions
+├── utils/                # Utility functions
+└── server.ts            # Application entry point
 ```
 
 ## License

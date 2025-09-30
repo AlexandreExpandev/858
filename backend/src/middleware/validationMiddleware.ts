@@ -4,7 +4,7 @@ import { errorResponse } from '../utils/responseFormatter';
 
 /**
  * @summary
- * Creates a middleware function that validates request body against a Zod schema
+ * Middleware factory for request validation using Zod schemas
  */
 export function validationMiddleware(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -12,8 +12,8 @@ export function validationMiddleware(schema: ZodSchema) {
       const result = schema.safeParse(req.body);
       
       if (!result.success) {
-        const errorMessage = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
-        res.status(400).json(errorResponse(`Validation error: ${errorMessage}`));
+        const errorDetails = result.error.format();
+        res.status(400).json(errorResponse('Validation failed', errorDetails));
         return;
       }
       

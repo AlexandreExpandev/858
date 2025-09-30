@@ -22,8 +22,8 @@ export const logger = winston.createLogger({
     }),
     // File transport for production
     ...(process.env.NODE_ENV === 'production' ? [
-      new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-      new winston.transports.File({ filename: 'logs/combined.log' })
+      new winston.transports.File({ filename: 'error.log', level: 'error' }),
+      new winston.transports.File({ filename: 'combined.log' })
     ] : [])
   ]
 });
