@@ -3,7 +3,7 @@ import { config } from '../config';
 
 /**
  * @summary
- * Application logger using Winston
+ * Application logger configuration
  */
 export const logger = winston.createLogger({
   level: config.logging.level,
@@ -11,7 +11,7 @@ export const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.json()
   ),
-  defaultMeta: { service: 'counter-api' },
+  defaultMeta: { service: 'counting-app' },
   transports: [
     // Console transport for all environments
     new winston.transports.Console({
@@ -22,8 +22,8 @@ export const logger = winston.createLogger({
     }),
     // File transport for production
     ...(process.env.NODE_ENV === 'production' ? [
-      new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-      new winston.transports.File({ filename: 'logs/combined.log' })
+      new winston.transports.File({ filename: 'error.log', level: 'error' }),
+      new winston.transports.File({ filename: 'combined.log' })
     ] : [])
   ]
 });

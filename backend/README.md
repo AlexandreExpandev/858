@@ -1,15 +1,23 @@
-# Counter API
+# Counting App Backend
 
-A RESTful API for a counting system that counts from 1 to 10 with various control features.
+A Node.js backend application that provides an API for counting from 1 to 10 with various control features.
 
 ## Features
 
-- Start counting from 1 to 10
-- Pause and resume counting
-- Restart counting from 1
+- Start, pause, resume, and restart counting from 1 to 10
 - Control counting speed (slow, medium, fast)
-- Display the numerical sequence
-- User authentication and authorization
+- Get current counter status
+- User authentication
+- API endpoints for all counting operations
+
+## Tech Stack
+
+- Node.js
+- Express.js
+- TypeScript
+- JWT Authentication
+- Winston Logger
+- Zod Validation
 
 ## Getting Started
 
@@ -21,37 +29,18 @@ A RESTful API for a counting system that counts from 1 to 10 with various contro
 ### Installation
 
 1. Clone the repository
-2. Install dependencies:
+2. Install dependencies
    ```
    npm install
    ```
-3. Copy the example environment file:
+3. Copy the example environment file
    ```
    cp .env.example .env
    ```
-4. Configure environment variables in `.env`
-
-### Development
-
-Start the development server:
-
-```
-npm run dev
-```
-
-### Production Build
-
-Build the application:
-
-```
-npm run build
-```
-
-Start the production server:
-
-```
-npm start
-```
+4. Start the development server
+   ```
+   npm run dev
+   ```
 
 ## API Endpoints
 
@@ -66,24 +55,31 @@ npm start
 - `POST /api/internal/counter/pause` - Pause counting
 - `POST /api/internal/counter/resume` - Resume counting
 - `POST /api/internal/counter/restart` - Restart counting
-- `PUT /api/internal/counter/speed` - Update counting speed
+- `PUT /api/internal/counter/speed` - Set counting speed
 - `GET /api/internal/counter/status` - Get counter status
+
+## Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Run production build
+- `npm run lint` - Run linting
+- `npm test` - Run tests
 
 ## Project Structure
 
 ```
 src/
-├── api/                  # API controllers
-├── config/               # Application configuration
-├── constants/            # Application constants
-├── middleware/           # Express middleware
-├── routes/               # Route definitions
-├── services/             # Business logic
-├── types/                # TypeScript type definitions
-├── utils/                # Utility functions
-└── server.ts            # Application entry point
+├── api/                    # API controllers
+│   ├── external/           # Public endpoints
+│   └── internal/           # Authenticated endpoints
+├── config/                 # Application configuration
+├── middleware/             # Express middleware
+├── routes/                 # Route definitions
+├── services/               # Business logic
+├── types/                  # TypeScript type definitions
+├── utils/                  # Utility functions
+└── server.ts              # Application entry point
 ```
-
-## License
-
-This project is licensed under the MIT License.

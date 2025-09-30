@@ -1,14 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { 
-  startCounting, 
-  pauseCounting, 
-  resumeCounting, 
-  restartCounting, 
-  updateCountingSpeed,
-  getCounterStatus
-} from '../../../services/counter/counterService';
 import { errorResponse, successResponse } from '../../../utils/responseFormatter';
+import { CounterService } from '../../../services/counter/counterService';
+
+// Create a singleton counter service instance
+const counterService = new CounterService();
 
 /**
  * @summary
@@ -16,16 +12,12 @@ import { errorResponse, successResponse } from '../../../utils/responseFormatter
  */
 export async function startHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?.id || 'anonymous';
+    const result = counterService.startCounting(userId);
     
-    if (!userId) {
-      return res.status(401).json(errorResponse('User not authenticated'));
-    }
-    
-    const result = await startCounting(userId);
     res.json(successResponse(result));
-  } catch (error) {
-    next(error);
+  } catch (error: any) {
+    res.status(400).json(errorResponse(error.message));
   }
 }
 
@@ -35,16 +27,12 @@ export async function startHandler(req: Request, res: Response, next: NextFuncti
  */
 export async function pauseHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?.id || 'anonymous';
+    const result = counterService.pauseCounting(userId);
     
-    if (!userId) {
-      return res.status(401).json(errorResponse('User not authenticated'));
-    }
-    
-    const result = await pauseCounting(userId);
     res.json(successResponse(result));
-  } catch (error) {
-    next(error);
+  } catch (error: any) {
+    res.status(400).json(errorResponse(error.message));
   }
 }
 
@@ -54,16 +42,12 @@ export async function pauseHandler(req: Request, res: Response, next: NextFuncti
  */
 export async function resumeHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?.id || 'anonymous';
+    const result = counterService.resumeCounting(userId);
     
-    if (!userId) {
-      return res.status(401).json(errorResponse('User not authenticated'));
-    }
-    
-    const result = await resumeCounting(userId);
     res.json(successResponse(result));
-  } catch (error) {
-    next(error);
+  } catch (error: any) {
+    res.status(400).json(errorResponse(error.message));
   }
 }
 
@@ -73,64 +57,53 @@ export async function resumeHandler(req: Request, res: Response, next: NextFunct
  */
 export async function restartHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?.id || 'anonymous';
+    const result = counterService.restartCounting(userId);
     
-    if (!userId) {
-      return res.status(401).json(errorResponse('User not authenticated'));
-    }
-    
-    const result = await restartCounting(userId);
     res.json(successResponse(result));
-  } catch (error) {
-    next(error);
+  } catch (error: any) {
+    res.status(400).json(errorResponse(error.message));
   }
 }
 
 /**
  * @summary
- * Updates the counting speed (slow, medium, fast)
+ * Sets the counting speed (slow, medium, fast)
  */
-export async function updateSpeedHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function setSpeedHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
-    
-    if (!userId) {
-      return res.status(401).json(errorResponse('User not authenticated'));
-    }
-    
     // Validate request body
-    const speedSchema = z.object({
+    const schema = z.object({
       speed: z.enum(['slow', 'medium', 'fast'])
     });
 
-    const validatedData = speedSchema.parse(req.body);
+    const result = schema.safeParse(req.body);
     
-    const result = await updateCountingSpeed(userId, validatedData.speed);
-    res.json(successResponse(result));
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json(errorResponse('Invalid speed value', error.errors));
-    } else {
-      next(error);
+    if (!result.success) {
+      res.status(400).json(errorResponse('Invalid speed value. Must be slow, medium, or fast'));
+      return;
     }
+
+    const userId = req.user?.id || 'anonymous';
+    const updatedStatus = counterService.setCountingSpeed(userId, result.data.speed);
+    
+    res.json(successResponse(updatedStatus));
+  } catch (error: any) {
+    res.status(400).json(errorResponse(error.message));
   }
 }
 
 /**
  * @summary
- * Gets the current counter status including current number and state
+ * Gets the current status of the counter
  */
 export async function getStatusHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?.id || 'anonymous';
+    const status = counterService.getCounterStatus(userId);
     
-    if (!userId) {
-      return res.status(401).json(errorResponse('User not authenticated'));
-    }
-    
-    const result = await getCounterStatus(userId);
-    res.json(successResponse(result));
-  } catch (error) {
-    next(error);
+    res.json(successResponse(status));
+  } catch (error: any) {
+    res.status(400).json(errorResponse(error.message));
   }
 }
