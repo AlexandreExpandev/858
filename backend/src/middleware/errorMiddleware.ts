@@ -6,20 +6,18 @@ import { errorResponse } from '../utils/responseFormatter';
  * @summary
  * Global error handling middleware
  */
-export function errorMiddleware(err: Error, req: Request, res: Response, next: NextFunction): void {
+export function errorMiddleware(err: any, req: Request, res: Response, next: NextFunction): void {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
+  
   // Log the error
-  logger.error('Unhandled error', {
-    error: err.message,
-    stack: err.stack,
+  logger.error('Error occurred', {
     path: req.path,
-    method: req.method
+    method: req.method,
+    error: err.message,
+    stack: err.stack
   });
-
-  // Send appropriate response
-  const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
-  res.status(statusCode).json(errorResponse(
-    process.env.NODE_ENV === 'production' 
-      ? 'An unexpected error occurred' 
-      : err.message
-  ));
+  
+  // Send error response
+  res.status(statusCode).json(errorResponse(message));
 }

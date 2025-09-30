@@ -3,20 +3,14 @@ import { config } from '../config';
 
 /**
  * @summary
- * Centralized logging utility
+ * Application logger configuration
  */
-
-// Define log format
-const logFormat = winston.format.combine(
-  winston.format.timestamp(),
-  winston.format.errors({ stack: true }),
-  winston.format.json()
-);
-
-// Create logger instance
 export const logger = winston.createLogger({
   level: config.logging.level,
-  format: logFormat,
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
   defaultMeta: { service: 'counter-api' },
   transports: [
     // Console transport for all environments

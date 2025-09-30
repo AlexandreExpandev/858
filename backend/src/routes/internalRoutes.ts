@@ -12,7 +12,7 @@ router.post('/counter/start', counterController.startHandler);
 router.post('/counter/pause', counterController.pauseHandler);
 router.post('/counter/resume', counterController.resumeHandler);
 router.post('/counter/restart', counterController.restartHandler);
-router.put('/counter/speed', counterController.speedHandler);
-router.get('/counter/status', counterController.statusHandler);
+router.post('/counter/speed', counterController.setSpeedHandler);
+router.get('/counter/status', counterController.getStatusHandler);
 
 export default router;

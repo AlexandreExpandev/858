@@ -8,7 +8,7 @@ export const config = {
     port: parseInt(process.env.DB_PORT || '1433'),
     user: process.env.DB_USER || 'sa',
     password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'counter_app',
+    database: process.env.DB_NAME || 'counterapp',
     options: {
       encrypt: process.env.DB_ENCRYPT === 'true',
       trustServerCertificate: process.env.NODE_ENV === 'development'

@@ -1,204 +1,117 @@
-import { logger } from '../../utils/logger';
+/**
+ * @summary
+ * Counter status interface
+ */
+export interface CounterStatus {
+  currentNumber: number;
+  isRunning: boolean;
+  isPaused: boolean;
+  speed: 'slow' | 'medium' | 'fast';
+  sequence: number[];
+}
 
 /**
  * @summary
- * Service for managing the counting process from 1 to 10
+ * Service to manage counter operations
  */
-
-// Types
-type CounterSpeed = 'slow' | 'medium' | 'fast';
-type CounterStatus = 'idle' | 'counting' | 'paused' | 'completed';
-
-interface CounterState {
-  currentNumber: number;
-  status: CounterStatus;
-  speed: CounterSpeed;
-  lastUpdated: Date;
-}
-
-// In-memory store for counter states (in a real app, this would be in a database)
-const counterStates = new Map<number, CounterState>();
-
-// Speed values in milliseconds
-const speedValues = {
-  slow: 2000,    // 2 seconds
-  medium: 1000,  // 1 second
-  fast: 500      // 0.5 seconds
-};
-
-/**
- * Starts the counting process from 1 to 10
- */
-export async function startCounting(userId: number): Promise<CounterState> {
-  const counterState: CounterState = {
-    currentNumber: 1,
-    status: 'counting',
-    speed: 'medium', // Default speed
-    lastUpdated: new Date()
-  };
+export class CounterService {
+  private static instance: CounterService;
+  private userCounters: Map<string, CounterStatus>;
   
-  counterStates.set(userId, counterState);
-  logger.info('Counting started', { userId, counterState });
-  
-  return counterState;
-}
-
-/**
- * Pauses the ongoing counting process
- */
-export async function pauseCounting(userId: number): Promise<CounterState> {
-  const state = counterStates.get(userId);
-  
-  if (!state) {
-    throw new Error('No active counting process found');
+  private constructor() {
+    this.userCounters = new Map<string, CounterStatus>();
   }
   
-  if (state.status !== 'counting') {
-    throw new Error(`Cannot pause counting in ${state.status} state`);
-  }
-  
-  const updatedState: CounterState = {
-    ...state,
-    status: 'paused',
-    lastUpdated: new Date()
-  };
-  
-  counterStates.set(userId, updatedState);
-  logger.info('Counting paused', { userId, counterState: updatedState });
-  
-  return updatedState;
-}
-
-/**
- * Resumes the counting process from where it was paused
- */
-export async function resumeCounting(userId: number): Promise<CounterState> {
-  const state = counterStates.get(userId);
-  
-  if (!state) {
-    throw new Error('No active counting process found');
-  }
-  
-  if (state.status !== 'paused') {
-    throw new Error(`Cannot resume counting in ${state.status} state`);
-  }
-  
-  const updatedState: CounterState = {
-    ...state,
-    status: 'counting',
-    lastUpdated: new Date()
-  };
-  
-  counterStates.set(userId, updatedState);
-  logger.info('Counting resumed', { userId, counterState: updatedState });
-  
-  return updatedState;
-}
-
-/**
- * Restarts the counting process from 1
- */
-export async function restartCounting(userId: number): Promise<CounterState> {
-  const state = counterStates.get(userId);
-  
-  if (!state) {
-    throw new Error('No active counting process found');
-  }
-  
-  const updatedState: CounterState = {
-    ...state,
-    currentNumber: 1,
-    status: 'counting',
-    lastUpdated: new Date()
-  };
-  
-  counterStates.set(userId, updatedState);
-  logger.info('Counting restarted', { userId, counterState: updatedState });
-  
-  return updatedState;
-}
-
-/**
- * Sets the speed of the counting process
- */
-export async function setCountingSpeed(userId: number, speed: CounterSpeed): Promise<CounterState> {
-  const state = counterStates.get(userId);
-  
-  if (!state) {
-    throw new Error('No active counting process found');
-  }
-  
-  const updatedState: CounterState = {
-    ...state,
-    speed,
-    lastUpdated: new Date()
-  };
-  
-  counterStates.set(userId, updatedState);
-  logger.info('Counting speed updated', { userId, speed, counterState: updatedState });
-  
-  return updatedState;
-}
-
-/**
- * Gets the current status of the counter
- */
-export async function getCounterStatus(userId: number): Promise<CounterState> {
-  const state = counterStates.get(userId);
-  
-  if (!state) {
-    // Return default state if no counting process exists
-    return {
-      currentNumber: 0,
-      status: 'idle',
-      speed: 'medium',
-      lastUpdated: new Date()
-    };
-  }
-  
-  return state;
-}
-
-/**
- * Simulates the counting process (for demonstration purposes)
- * In a real application, this would be implemented with WebSockets or SSE
- */
-export async function simulateCountingProcess(userId: number): Promise<void> {
-  const state = counterStates.get(userId);
-  
-  if (!state || state.status !== 'counting') {
-    return;
-  }
-  
-  if (state.currentNumber >= 10) {
-    // Counting completed
-    const updatedState: CounterState = {
-      ...state,
-      status: 'completed',
-      lastUpdated: new Date()
-    };
-    
-    counterStates.set(userId, updatedState);
-    logger.info('Counting completed', { userId, counterState: updatedState });
-    return;
-  }
-  
-  // Increment the counter
-  setTimeout(() => {
-    const currentState = counterStates.get(userId);
-    
-    if (currentState && currentState.status === 'counting') {
-      const updatedState: CounterState = {
-        ...currentState,
-        currentNumber: currentState.currentNumber + 1,
-        lastUpdated: new Date()
-      };
-      
-      counterStates.set(userId, updatedState);
-      logger.info('Counter incremented', { userId, counterState: updatedState });
-      
-      // Continue counting
-      simulateCountingProcess(userId);
+  /**
+   * @summary
+   * Gets the singleton instance of the counter service
+   */
+  public static getInstance(): CounterService {
+    if (!CounterService.instance) {
+      CounterService.instance = new CounterService();
     }
-  }, speedValues[state.speed]);
+    return CounterService.instance;
+  }
+  
+  /**
+   * @summary
+   * Gets or initializes a counter for a user
+   */
+  private getOrCreateCounter(userId: string): CounterStatus {
+    if (!this.userCounters.has(userId)) {
+      this.userCounters.set(userId, {
+        currentNumber: 0,
+        isRunning: false,
+        isPaused: false,
+        speed: 'medium',
+        sequence: []
+      });
+    }
+    return this.userCounters.get(userId)!;
+  }
+  
+  /**
+   * @summary
+   * Starts the counting sequence for a user
+   */
+  public startCounting(userId: string): CounterStatus {
+    const counter = this.getOrCreateCounter(userId);
+    
+    if (counter.isRunning && !counter.isPaused) {
+      throw new Error('Counter is already running');
+    }
+    
+    // Reset and start the counter
+    counter.currentNumber = 1;
+    counter.isRunning = true;
+    counter.isPaused = false;
+    counter.sequence = [1];
+    
+    return { ...counter };
+  }
+  
+  /**
+   * @summary
+   * Pauses the counting sequence for a user
+   */
+  public pauseCounting(userId: string): CounterStatus {
+    const counter = this.getOrCreateCounter(userId);
+    
+    if (!counter.isRunning) {
+      throw new Error('Counter is not running');
+    }
+    
+    if (counter.isPaused) {
+      throw new Error('Counter is already paused');
+    }
+    
+    counter.isPaused = true;
+    
+    return { ...counter };
+  }
+  
+  /**
+   * @summary
+   * Resumes the counting sequence for a user
+   */
+  public resumeCounting(userId: string): CounterStatus {
+    const counter = this.getOrCreateCounter(userId);
+    
+    if (!counter.isRunning) {
+      throw new Error('Counter is not running');
+    }
+    
+    if (!counter.isPaused) {
+      throw new Error('Counter is not paused');
+    }
+    
+    counter.isPaused = false;
+    
+    // If we haven't reached 10 yet, increment the counter\n    if (counter.currentNumber < 10) {\n      counter.currentNumber++;\n      counter.sequence.push(counter.currentNumber);\n    }\n    \n    return { ...counter };\n  }\n  \n  /**\n   * @summary\n   * Restarts the counting sequence for a user\n   */\n  public restartCounting(userId: string): CounterStatus {\n    const counter = this.getOrCreateCounter(userId);\n    \n    counter.currentNumber = 1;\n    counter.isRunning = true;\n    counter.isPaused = false;\n    counter.sequence = [1];\n    \n    return { ...counter };\n  }\n  \n  /**\n   * @summary\n   * Sets the counting speed for a user\n   */\n  public setCountingSpeed(userId: string, speed: 'slow' | 'medium' | 'fast'): CounterStatus {\n    const counter = this.getOrCreateCounter(userId);\n    counter.speed = speed;\n    \n    return { ...counter };\n  }\n  \n  /**\n   * @summary\n   * Gets the current counter status for a user\n   */\n  public getCounterStatus(userId: string): CounterStatus {\n    return { ...this.getOrCreateCounter(userId) };\n  }\n  \n  /**\n   * @summary\n   * Simulates advancing the counter for a user\n   * In a real application, this would be called by a timer or event\n   */\n  public advanceCounter(userId: string): CounterStatus | null {\n    const counter = this.getOrCreateCounter(userId);\n    \n    if (!counter.isRunning || counter.isPaused || counter.currentNumber >= 10) {\n      return null;\n    }\n    \n    counter.currentNumber++;\n    counter.sequence.push(counter.currentNumber);\n    \n    // If we've reached 10, stop the counter
+    if (counter.currentNumber >= 10) {
+      counter.isRunning = false;
+    }
+    
+    return { ...counter };
+  }
 }

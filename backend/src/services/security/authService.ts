@@ -1,57 +1,30 @@
 import jwt from 'jsonwebtoken';
 import { config } from '../../config';
-import { logger } from '../../utils/logger';
 
 /**
  * @summary
- * Service for user authentication and token generation
+ * User data interface for token payload
  */
-
-// For demo purposes - in a real app, this would be stored in a database
-const demoUsers = [
-  { id: 1, username: 'admin', password: 'admin123' },
-  { id: 2, username: 'user', password: 'user123' }
-];
-
-interface AuthResult {
-  success: boolean;
-  token?: string;
-  user?: {
-    id: number;
-    username: string;
-  };
-  message?: string;
+export interface UserData {
+  username: string;
+  id?: string;
+  [key: string]: any;
 }
 
 /**
- * Authenticates a user and generates a JWT token
+ * @summary
+ * Generates a JWT token for the provided user data
  */
-export async function authenticateUser(username: string, password: string): Promise<AuthResult> {
-  try {
-    // Find user (in a real app, this would query a database)
-    const user = demoUsers.find(u => u.username === username && u.password === password);
-    
-    if (!user) {
-      return { success: false, message: 'Invalid credentials' };
-    }
-    
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: user.id, username: user.username },
-      config.security.jwtSecret,
-      { expiresIn: config.security.jwtExpiration }
-    );
-    
-    return {
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        username: user.username
-      }
-    };
-  } catch (error) {
-    logger.error('Authentication error', { error, username });
-    return { success: false, message: 'Authentication failed' };
-  }
+export function generateToken(userData: UserData): string {
+  return jwt.sign(userData, config.security.jwtSecret, {
+    expiresIn: config.security.jwtExpiration
+  });
+}
+
+/**
+ * @summary
+ * Verifies a JWT token and returns the decoded data
+ */
+export function verifyToken(token: string): UserData {
+  return jwt.verify(token, config.security.jwtSecret) as UserData;
 }

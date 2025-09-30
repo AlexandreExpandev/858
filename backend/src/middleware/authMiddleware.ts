@@ -2,34 +2,35 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import { errorResponse } from '../utils/responseFormatter';
-import { logger } from '../utils/logger';
 
 /**
  * @summary
- * Middleware to authenticate requests using JWT tokens
+ * Authentication middleware to verify JWT tokens
  */
 export async function authMiddleware(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    // Get token from Authorization header
     const authHeader = req.headers.authorization;
-    const token = authHeader?.split(' ')[1];
     
-    if (!token) {
-      res.status(401).json(errorResponse('No token provided'));
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json(errorResponse('Authentication required'));
       return;
     }
     
-    // Verify token
+    const token = authHeader.split(' ')[1];
+    
+    if (!token) {
+      res.status(401).json(errorResponse('Authentication token missing'));
+      return;
+    }
+    
     try {
       const decoded = jwt.verify(token, config.security.jwtSecret);
-      req.user = decoded as { id: number; username: string };
+      req.user = decoded as any;
       next();
     } catch (error) {
-      logger.error('Token verification failed', { error });
-      res.status(401).json(errorResponse('Invalid token'));
+      res.status(401).json(errorResponse('Invalid or expired token'));
     }
   } catch (error) {
-    logger.error('Authentication middleware error', { error });
     next(error);
   }
 }
