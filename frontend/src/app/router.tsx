@@ -26,7 +26,12 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
-    errorElement: <ErrorBoundary />,
+    errorElement: <ErrorBoundary>
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h1 className="text-2xl font-bold">Something went wrong.</h1>
+        <p>Please try refreshing the page.</p>
+      </div>
+    </ErrorBoundary>,
     children: [
       {
         index: true,

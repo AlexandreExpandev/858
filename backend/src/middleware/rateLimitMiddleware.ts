@@ -36,7 +36,7 @@ export function rateLimitMiddleware(options: RateLimitOptions) {
     }
   }, windowMs);
   
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction) => {
     // Use IP address as the key for rate limiting
     // In a real app, you might want to use a combination of IP and user ID
     const key = req.ip || 'unknown';
@@ -56,7 +56,7 @@ export function rateLimitMiddleware(options: RateLimitOptions) {
     
     // Check if over limit
     if (store[key].count > maxRequests) {
-      return res.status(429).json({
+      res.status(429).json({
         success: false,
         error: {
           message,
@@ -64,6 +64,7 @@ export function rateLimitMiddleware(options: RateLimitOptions) {
         },
         timestamp: new Date().toISOString()
       });
+      return;
     }
     
     next();
