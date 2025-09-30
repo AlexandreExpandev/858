@@ -1,95 +1,118 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import { 
+  startCounter, 
+  pauseCounter, 
+  resumeCounter, 
+  restartCounter, 
+  setCounterSpeed,
+  getCounterStatus
+} from '../../../services/counter/counterService';
 import { errorResponse, successResponse } from '../../../utils/responseFormatter';
-import { CounterService } from '../../../services/counter/counterService';
-
-// Create a singleton counter service instance
-const counterService = new CounterService();
 
 /**
  * @summary
- * Starts the counting sequence from 1 to 10
+ * Starts the counter sequence from 1 to 10
  */
 export async function startHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id || 'anonymous';
-    const result = counterService.startCounting(userId);
-    
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json(errorResponse('Unauthorized'));
+      return;
+    }
+
+    const result = await startCounter(userId);
     res.json(successResponse(result));
-  } catch (error: any) {
-    res.status(400).json(errorResponse(error.message));
+  } catch (error) {
+    next(error);
   }
 }
 
 /**
  * @summary
- * Pauses the counting sequence at the current number
+ * Pauses the counter at the current number
  */
 export async function pauseHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id || 'anonymous';
-    const result = counterService.pauseCounting(userId);
-    
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json(errorResponse('Unauthorized'));
+      return;
+    }
+
+    const result = await pauseCounter(userId);
     res.json(successResponse(result));
-  } catch (error: any) {
-    res.status(400).json(errorResponse(error.message));
+  } catch (error) {
+    next(error);
   }
 }
 
 /**
  * @summary
- * Resumes the counting sequence from the paused number
+ * Resumes the counter from the paused position
  */
 export async function resumeHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id || 'anonymous';
-    const result = counterService.resumeCounting(userId);
-    
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json(errorResponse('Unauthorized'));
+      return;
+    }
+
+    const result = await resumeCounter(userId);
     res.json(successResponse(result));
-  } catch (error: any) {
-    res.status(400).json(errorResponse(error.message));
+  } catch (error) {
+    next(error);
   }
 }
 
 /**
  * @summary
- * Restarts the counting sequence from 1
+ * Restarts the counter back to 1
  */
 export async function restartHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id || 'anonymous';
-    const result = counterService.restartCounting(userId);
-    
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json(errorResponse('Unauthorized'));
+      return;
+    }
+
+    const result = await restartCounter(userId);
     res.json(successResponse(result));
-  } catch (error: any) {
-    res.status(400).json(errorResponse(error.message));
+  } catch (error) {
+    next(error);
   }
 }
 
 /**
  * @summary
- * Sets the counting speed (slow, medium, fast)
+ * Sets the speed of the counter (slow, medium, fast)
  */
 export async function setSpeedHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json(errorResponse('Unauthorized'));
+      return;
+    }
+
     // Validate request body
     const schema = z.object({
       speed: z.enum(['slow', 'medium', 'fast'])
     });
 
-    const result = schema.safeParse(req.body);
+    const validatedData = schema.parse(req.body);
     
-    if (!result.success) {
-      res.status(400).json(errorResponse('Invalid speed value. Must be slow, medium, or fast'));
-      return;
-    }
-
-    const userId = req.user?.id || 'anonymous';
-    const updatedStatus = counterService.setCountingSpeed(userId, result.data.speed);
-    
-    res.json(successResponse(updatedStatus));
+    const result = await setCounterSpeed(userId, validatedData.speed);
+    res.json(successResponse(result));
   } catch (error: any) {
-    res.status(400).json(errorResponse(error.message));
+    if (error instanceof z.ZodError) {
+      res.status(400).json(errorResponse('Invalid speed value. Must be slow, medium, or fast', error.errors));
+    } else {
+      next(error);
+    }
   }
 }
 
@@ -99,11 +122,15 @@ export async function setSpeedHandler(req: Request, res: Response, next: NextFun
  */
 export async function getStatusHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id || 'anonymous';
-    const status = counterService.getCounterStatus(userId);
-    
-    res.json(successResponse(status));
-  } catch (error: any) {
-    res.status(400).json(errorResponse(error.message));
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json(errorResponse('Unauthorized'));
+      return;
+    }
+
+    const result = await getCounterStatus(userId);
+    res.json(successResponse(result));
+  } catch (error) {
+    next(error);
   }
 }

@@ -1,32 +1,26 @@
 /**
  * @summary
- * Formats a successful response
- * 
- * @param {any} data - Response data
- * @returns {object} Formatted success response
+ * Formats successful API responses
  */
-export function successResponse(data: any): object {
+export function successResponse<T>(data: T, metadata?: any) {
   return {
     success: true,
     data,
-    timestamp: new Date().toISOString()
+    metadata: {
+      ...metadata,
+      timestamp: new Date().toISOString()
+    }
   };
 }
 
 /**
  * @summary
- * Formats an error response
- * 
- * @param {string} message - Error message
- * @param {string} code - Error code
- * @param {any} details - Additional error details
- * @returns {object} Formatted error response
+ * Formats error API responses
  */
-export function errorResponse(message: string, code: string = 'BAD_REQUEST', details?: any): object {
+export function errorResponse(message: string, details?: any) {
   return {
     success: false,
     error: {
-      code,
       message,
       details
     },

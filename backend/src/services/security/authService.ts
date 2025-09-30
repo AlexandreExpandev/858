@@ -1,32 +1,7 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { config } from '../../config';
+import { logger } from '../../utils/logger';
 
-/**
- * @summary
- * Generates a JWT token for authenticated users
- * 
- * @param {object} payload - User data to include in the token
- * @returns {string} JWT token
- */
-export function generateToken(payload: object): string {
-  return jwt.sign(
-    payload,
-    config.security.jwtSecret,
-    { expiresIn: config.security.jwtExpiration }
-  );
-}
-
-/**
- * @summary
- * Verifies a JWT token
- * 
- * @param {string} token - JWT token to verify
- * @returns {object|null} Decoded token payload or null if invalid
- */
-export function verifyToken(token: string): object | null {
-  try {
-    return jwt.verify(token, config.security.jwtSecret) as object;
-  } catch (error) {
-    return null;
-  }
-}
+// This would typically interact with a database
+// For this foundation structure, we're using an in-memory store\nconst users: { id: number; name: string; email: string; password: string }[] = [];\n\n/**\n * @summary\n * Authenticates a user and returns a JWT token\n */\nexport async function loginUser(email: string, password: string) {\n  try {\n    // Find user by email\n    const user = users.find(u => u.email === email);\n    \n    if (!user) {\n      throw new Error('InvalidCredentials');\n    }\n    \n    // Verify password\n    const isPasswordValid = await bcrypt.compare(password, user.password);\n    \n    if (!isPasswordValid) {\n      throw new Error('InvalidCredentials');\n    }\n    \n    // Generate JWT token\n    const token = jwt.sign(\n      { id: user.id, email: user.email },\n      config.security.jwtSecret,\n      { expiresIn: config.security.jwtExpiration }\n    );\n    \n    return {\n      token,\n      user: {\n        id: user.id,\n        name: user.name,\n        email: user.email\n      }\n    };\n  } catch (error) {\n    logger.error('Login failed', { error, email });\n    throw error;\n  }\n}\n\n/**\n * @summary\n * Registers a new user and returns a JWT token\n */\nexport async function registerUser(name: string, email: string, password: string) {\n  try {\n    // Check if user already exists\n    const existingUser = users.find(u => u.email === email);\n    \n    if (existingUser) {\n      throw new Error('UserAlreadyExists');\n    }\n    \n    // Hash password\n    const hashedPassword = await bcrypt.hash(password, 10);\n    \n    // Create new user\n    const newUser = {\n      id: users.length + 1,\n      name,\n      email,\n      password: hashedPassword\n    };\n    \n    users.push(newUser);\n    \n    // Generate JWT token\n    const token = jwt.sign(\n      { id: newUser.id, email: newUser.email },\n      config.security.jwtSecret,\n      { expiresIn: config.security.jwtExpiration }\n    );\n    \n    return {\n      token,\n      user: {\n        id: newUser.id,\n        name: newUser.name,\n        email: newUser.email\n      }\n    };\n  } catch (error) {\n    logger.error('Registration failed', { error, email });\n    throw error;\n  }\n}\n

@@ -8,7 +8,7 @@ export const config = {
     port: parseInt(process.env.DB_PORT || '1433'),
     user: process.env.DB_USER || 'sa',
     password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'countingapp',
+    database: process.env.DB_NAME || 'counterapp',
     options: {
       encrypt: process.env.DB_ENCRYPT === 'true',
       trustServerCertificate: process.env.NODE_ENV === 'development'
@@ -22,7 +22,7 @@ export const config = {
     }
   },
   security: {
-    jwtSecret: process.env.JWT_SECRET || 'counting-app-secret-key',
+    jwtSecret: process.env.JWT_SECRET || 'counter-app-secret-key',
     jwtExpiration: process.env.JWT_EXPIRATION || '24h'
   },
   logging: {
