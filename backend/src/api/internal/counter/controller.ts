@@ -17,13 +17,29 @@ export async function startHandler(req: Request, res: Response, next: NextFuncti
     }
     
     const counterService = new CounterService(userId);
-    await counterService.start();
     
-    res.json(successResponse({
-      message: 'Counter started',
-      status: 'running',
-      currentValue: 1
-    }));
+    try {
+      const status = await counterService.start();
+      
+      // Return success response with updated button states
+      res.json(successResponse({
+        message: 'Counter started',
+        status: 'running',
+        currentValue: 1,
+        controlStates: {
+          startButton: 'disabled',
+          pauseButton: 'enabled',
+          resetButton: 'enabled'
+        },
+        notification: 'Contagem iniciada!'
+      }));
+    } catch (error: any) {
+      if (error.message === 'counterNotIdle') {
+        res.status(400).json(errorResponse('Counter is already running or paused'));
+        return;
+      }
+      throw error;
+    }
   } catch (error) {
     next(error);
   }

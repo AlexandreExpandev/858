@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/authMiddleware';
+import { rateLimitMiddleware } from '../middleware/rateLimitMiddleware';
 import * as counterController from '../api/internal/counter/controller';
 
 const router = Router();
@@ -8,7 +9,11 @@ const router = Router();
 router.use(authMiddleware);
 
 // Counter routes
-router.post('/counter/start', counterController.startHandler);
+// Apply rate limiting to the start endpoint to prevent abuse
+router.post('/counter/start', 
+  rateLimitMiddleware({ windowMs: 5000, maxRequests: 3 }),
+  counterController.startHandler
+);
 router.post('/counter/pause', counterController.pauseHandler);
 router.post('/counter/resume', counterController.resumeHandler);
 router.post('/counter/restart', counterController.restartHandler);

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { counterService } from '../../services/counterService';
 import type { CounterSpeed } from '../../types';
 
@@ -23,35 +24,38 @@ export const useCounter = () => {
     },
   });
 
-  const mutationOptions = {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: COUNTER_QUERY_KEY });
-    },
+  const invalidateCounterQuery = () => {
+    queryClient.invalidateQueries({ queryKey: COUNTER_QUERY_KEY });
   };
 
   const startMutation = useMutation({
     mutationFn: counterService.start,
-    ...mutationOptions,
+    onSuccess: (data) => {
+      if (data.notification) {
+        toast.success(data.notification);
+      }
+      invalidateCounterQuery();
+    },
   });
 
   const pauseMutation = useMutation({
     mutationFn: counterService.pause,
-    ...mutationOptions,
+    onSuccess: invalidateCounterQuery,
   });
 
   const resumeMutation = useMutation({
     mutationFn: counterService.resume,
-    ...mutationOptions,
+    onSuccess: invalidateCounterQuery,
   });
 
   const restartMutation = useMutation({
     mutationFn: counterService.restart,
-    ...mutationOptions,
+    onSuccess: invalidateCounterQuery,
   });
 
   const setSpeedMutation = useMutation({
     mutationFn: (speed: CounterSpeed) => counterService.setSpeed(speed),
-    ...mutationOptions,
+    onSuccess: invalidateCounterQuery,
   });
 
   return {
