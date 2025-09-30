@@ -6,7 +6,6 @@ import { config } from './config';
 import { errorMiddleware } from './middleware/errorMiddleware';
 import { notFoundMiddleware } from './middleware/notFoundMiddleware';
 import routes from './routes';
-import { logger } from './utils/logger';
 
 const app = express();
 
@@ -35,16 +34,16 @@ app.use(errorMiddleware);
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, closing server gracefully');
+  console.log('SIGTERM received, closing server gracefully');
   server.close(() => {
-    logger.info('Server closed');
+    console.log('Server closed');
     process.exit(0);
   });
 });
 
 // Server startup
 const server = app.listen(config.api.port, () => {
-  logger.info(`Server running on port ${config.api.port} in ${process.env.NODE_ENV || 'development'} mode`);
+  console.log(`Server running on port ${config.api.port} in ${process.env.NODE_ENV || 'development'} mode`);
 });
 
 export default server;

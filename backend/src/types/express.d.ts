@@ -1,9 +1,13 @@
-import { JwtPayload } from '../services/security/securityTypes';
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: JwtPayload;
-    }
+/**
+ * @summary
+ * Type definitions to extend Express Request interface
+ */
+declare namespace Express {
+  export interface Request {
+    user?: {
+      id: number;
+      email: string;
+      name: string;
+    };
   }
 }

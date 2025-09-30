@@ -4,10 +4,10 @@ import internalRoutes from './internalRoutes';
 
 const router = Router();
 
-// External (public) routes
+// External routes (public access)
 router.use('/external', externalRoutes);
 
-// Internal (authenticated) routes
+// Internal routes (authenticated access)
 router.use('/internal', internalRoutes);
 
 export default router;

@@ -1,19 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
-import { errorResponse } from '../utils/responseFormatter';
 
 /**
  * @summary
- * Middleware factory for request validation using Zod schemas
+ * Middleware for validating request data using Zod schemas
  */
 export function validationMiddleware(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
+      // Validate request body against schema
       const result = schema.safeParse(req.body);
       
       if (!result.success) {
-        const errorDetails = result.error.format();
-        res.status(400).json(errorResponse('Validation failed', errorDetails));
+        res.status(400).json({
+          success: false,
+          error: {
+            message: 'Validation failed',
+            details: result.error.format()
+          },
+          timestamp: new Date().toISOString()
+        });
         return;
       }
       

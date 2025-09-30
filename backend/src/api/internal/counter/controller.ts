@@ -1,14 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { errorResponse, successResponse } from '../../../utils/responseFormatter';
-import { 
-  startCounter, 
-  pauseCounter, 
-  resumeCounter, 
-  restartCounter,
-  setCounterSpeed,
-  getCounterStatus
-} from '../../../services/counter/counterService';
+import { errorResponse, successResponse } from '../../../utils/response/responseUtils';
+import { CounterService } from '../../../services/counter/counterService';
 
 /**
  * @summary
@@ -17,18 +10,21 @@ import {
 export async function startHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user?.id;
+    
     if (!userId) {
       res.status(401).json(errorResponse('Unauthorized'));
       return;
     }
-
-    const result = await startCounter(userId);
-    res.json(successResponse(result));
+    
+    const counterService = new CounterService(userId);
+    await counterService.start();
+    
+    res.json(successResponse({
+      message: 'Counter started',
+      status: 'running',
+      currentValue: 1
+    }));
   } catch (error) {
-    if (error instanceof Error && error.message === 'CounterAlreadyRunning') {
-      res.status(400).json(errorResponse('Counter is already running'));
-      return;
-    }
     next(error);
   }
 }
@@ -40,18 +36,26 @@ export async function startHandler(req: Request, res: Response, next: NextFuncti
 export async function pauseHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user?.id;
+    
     if (!userId) {
       res.status(401).json(errorResponse('Unauthorized'));
       return;
     }
-
-    const result = await pauseCounter(userId);
-    res.json(successResponse(result));
-  } catch (error) {
-    if (error instanceof Error && error.message === 'CounterNotRunning') {
+    
+    const counterService = new CounterService(userId);
+    const status = await counterService.pause();
+    
+    if (!status) {
       res.status(400).json(errorResponse('Counter is not running'));
       return;
     }
+    
+    res.json(successResponse({
+      message: 'Counter paused',
+      status: 'paused',
+      currentValue: status.currentValue
+    }));
+  } catch (error) {
     next(error);
   }
 }
@@ -63,18 +67,26 @@ export async function pauseHandler(req: Request, res: Response, next: NextFuncti
 export async function resumeHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user?.id;
+    
     if (!userId) {
       res.status(401).json(errorResponse('Unauthorized'));
       return;
     }
-
-    const result = await resumeCounter(userId);
-    res.json(successResponse(result));
-  } catch (error) {
-    if (error instanceof Error && error.message === 'CounterNotPaused') {
+    
+    const counterService = new CounterService(userId);
+    const status = await counterService.resume();
+    
+    if (!status) {
       res.status(400).json(errorResponse('Counter is not paused'));
       return;
     }
+    
+    res.json(successResponse({
+      message: 'Counter resumed',
+      status: 'running',
+      currentValue: status.currentValue
+    }));
+  } catch (error) {
     next(error);
   }
 }
@@ -86,13 +98,20 @@ export async function resumeHandler(req: Request, res: Response, next: NextFunct
 export async function restartHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user?.id;
+    
     if (!userId) {
       res.status(401).json(errorResponse('Unauthorized'));
       return;
     }
-
-    const result = await restartCounter(userId);
-    res.json(successResponse(result));
+    
+    const counterService = new CounterService(userId);
+    await counterService.restart();
+    
+    res.json(successResponse({
+      message: 'Counter restarted',
+      status: 'running',
+      currentValue: 1
+    }));
   } catch (error) {
     next(error);
   }
@@ -105,25 +124,31 @@ export async function restartHandler(req: Request, res: Response, next: NextFunc
 export async function setSpeedHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user?.id;
+    
     if (!userId) {
       res.status(401).json(errorResponse('Unauthorized'));
       return;
     }
-
+    
     // Validate request body
     const schema = z.object({
       speed: z.enum(['slow', 'medium', 'fast'])
     });
 
     const result = schema.safeParse(req.body);
+    
     if (!result.success) {
       res.status(400).json(errorResponse('Invalid speed value. Must be slow, medium, or fast'));
       return;
     }
-
-    const { speed } = result.data;
-    const updatedCounter = await setCounterSpeed(userId, speed);
-    res.json(successResponse(updatedCounter));
+    
+    const counterService = new CounterService(userId);
+    await counterService.setSpeed(result.data.speed);
+    
+    res.json(successResponse({
+      message: `Counter speed set to ${result.data.speed}`,
+      speed: result.data.speed
+    }));
   } catch (error) {
     next(error);
   }
@@ -136,12 +161,15 @@ export async function setSpeedHandler(req: Request, res: Response, next: NextFun
 export async function getStatusHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user?.id;
+    
     if (!userId) {
       res.status(401).json(errorResponse('Unauthorized'));
       return;
     }
-
-    const status = await getCounterStatus(userId);
+    
+    const counterService = new CounterService(userId);
+    const status = await counterService.getStatus();
+    
     res.json(successResponse(status));
   } catch (error) {
     next(error);

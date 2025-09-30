@@ -3,13 +3,13 @@ import * as securityController from '../api/external/security/controller';
 
 const router = Router();
 
-// Security routes (authentication, etc.)
-router.post('/security/login', securityController.loginHandler);
-router.post('/security/register', securityController.registerHandler);
+// Authentication routes
+router.post('/auth/login', securityController.loginHandler);
+router.post('/auth/register', securityController.registerHandler);
 
 // Public health check
 router.get('/public/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 export default router;

@@ -1,20 +1,44 @@
-# Counter API
+# Counter App Backend
 
-A RESTful API for a counting system that counts from 1 to 10 with features for controlling the counting process.
+A Node.js backend application for a counting system that counts from 1 to 10 with various control features.
 
 ## Features
 
-- Start, pause, resume, and restart counting
+- Start counting from 1 to 10
+- Pause and resume counting at any point
+- Restart counting from 1
 - Control counting speed (slow, medium, fast)
-- Display numerical sequence from 1 to 10
-- User authentication and authorization
-- Secure API endpoints
+- Display the numerical sequence clearly
+
+## Tech Stack
+
+- Node.js
+- Express.js
+- TypeScript
+- JWT Authentication
+- Zod for validation
+
+## Project Structure
+
+```
+src/
+├── api/                  # API controllers
+│   ├── external/         # Public endpoints
+│   └── internal/         # Authenticated endpoints
+├── config/               # Application configuration
+├── middleware/           # Express middleware
+├── routes/               # Route definitions
+├── services/             # Business logic
+├── types/                # TypeScript type definitions
+├── utils/                # Utility functions
+└── server.ts            # Application entry point
+```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v14+)
 - npm or yarn
 
 ### Installation
@@ -24,10 +48,7 @@ A RESTful API for a counting system that counts from 1 to 10 with features for c
    ```
    npm install
    ```
-3. Copy the environment file and configure it
-   ```
-   cp .env.example .env
-   ```
+3. Create a `.env` file based on `.env.example`
 4. Start the development server
    ```
    npm run dev
@@ -37,8 +58,8 @@ A RESTful API for a counting system that counts from 1 to 10 with features for c
 
 ### Authentication
 
-- `POST /api/external/security/login` - User login
-- `POST /api/external/security/register` - User registration
+- `POST /api/external/auth/login` - User login
+- `POST /api/external/auth/register` - User registration
 
 ### Counter Operations
 
@@ -57,36 +78,18 @@ A RESTful API for a counting system that counts from 1 to 10 with features for c
 npm run build
 ```
 
-### Run Tests
-
-```
-npm test
-```
-
-### Linting
+### Lint
 
 ```
 npm run lint
 ```
 
-## Project Structure
+### Test
 
 ```
-src/
-├── api/                  # API controllers
-│   ├── external/         # Public endpoints
-│   └── internal/         # Authenticated endpoints
-├── config/               # Application configuration
-├── middleware/           # Express middleware
-├── routes/               # Route definitions
-├── services/             # Business logic
-│   ├── counter/          # Counter service
-│   └── security/         # Authentication service
-├── types/                # TypeScript type definitions
-├── utils/                # Utility functions
-└── server.ts            # Application entry point
+npm test
 ```
 
 ## License
 
-This project is licensed under the MIT License.
+MIT
