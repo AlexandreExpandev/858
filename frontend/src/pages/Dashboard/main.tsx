@@ -1,3 +1,5 @@
+import { Counter } from '@/domain/counter/components/Counter';
+
 /**
  * @page DashboardPage
  * @summary The main page for authenticated users, containing the counter feature.
@@ -12,10 +14,7 @@ export const DashboardPage = () => {
       <p className="text-muted-foreground mt-2">Welcome to the counter application.</p>
 
       <div className="mt-8">
-        {/* The Counter feature component will be placed here */}
-        <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed bg-gray-100">
-          <p className="text-gray-500">Counter Feature Coming Soon</p>
-        </div>
+        <Counter />
       </div>
     </div>
   );

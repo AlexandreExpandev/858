@@ -6,6 +6,12 @@
  * @version 1.0.0
  */
 
+// Public Components
+export * from './components/Counter';
+
+// Public Hooks
+export * from './hooks/useCounter';
+
 // Public Services
 export * from './services/counterService';
 
@@ -16,6 +22,8 @@ export const moduleMetadata = {
   name: 'counter',
   domain: 'functional',
   version: '1.0.0',
+  publicComponents: ['Counter'],
+  publicHooks: ['useCounter'],
   publicServices: ['counterService'],
   dependencies: {
     internal: ['@/core/lib/api'],
